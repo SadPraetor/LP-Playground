@@ -1,0 +1,56 @@
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using Keycloak.Auth.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using System;
+
+namespace Keycloak.Auth.Controllers;
+
+public class HomeController : Controller
+{
+    private readonly WeatherApiService _weatherClient;
+    private readonly ApiAuthTokenManager _tokenHandler;
+    private readonly ILogger<HomeController> _logger;
+
+    public HomeController(WeatherApiService weatherClient,
+        ApiAuthTokenManager tokenHandler,
+        ILogger<HomeController> logger)
+    {
+        _weatherClient = weatherClient;
+        _tokenHandler = tokenHandler;
+        _logger = logger;
+    }
+
+    public IActionResult Index()
+    {
+        return View();
+    }
+
+    public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    [AllowAnonymous]
+    public IActionResult Logout()
+    {
+        return View();
+    }
+    
+    public async Task<IActionResult> CallApi()
+    {
+        var data = await _weatherClient.GetLatestForecastAsync();
+
+
+
+        return View(data);
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+}

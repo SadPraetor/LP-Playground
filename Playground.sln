@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirstCallsDb", "FirstCallsDb\FirstCallsDb.csproj", "{81BE7315-E92C-46DB-81F0-EC2CFBED2B14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetObjectIdByObjectNbr", "GetObjectIdByObjectNbr\GetObjectIdByObjectNbr.csproj", "{A775282C-DE59-4047-9713-7775DE1F418F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keycloak.Auth", "Keycloak.Auth\Keycloak.Auth.csproj", "{82BFA25D-2E14-4663-8007-0A4FB9B7168F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keycloak.API", "Keycloak.API\Keycloak.API.csproj", "{70A995EE-5040-4836-95B3-4DEDC668911F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{81BE7315-E92C-46DB-81F0-EC2CFBED2B14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81BE7315-E92C-46DB-81F0-EC2CFBED2B14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81BE7315-E92C-46DB-81F0-EC2CFBED2B14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81BE7315-E92C-46DB-81F0-EC2CFBED2B14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A775282C-DE59-4047-9713-7775DE1F418F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A775282C-DE59-4047-9713-7775DE1F418F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A775282C-DE59-4047-9713-7775DE1F418F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A775282C-DE59-4047-9713-7775DE1F418F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82BFA25D-2E14-4663-8007-0A4FB9B7168F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82BFA25D-2E14-4663-8007-0A4FB9B7168F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82BFA25D-2E14-4663-8007-0A4FB9B7168F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82BFA25D-2E14-4663-8007-0A4FB9B7168F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70A995EE-5040-4836-95B3-4DEDC668911F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70A995EE-5040-4836-95B3-4DEDC668911F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70A995EE-5040-4836-95B3-4DEDC668911F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70A995EE-5040-4836-95B3-4DEDC668911F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EA087CD8-86B9-4CC8-9114-6C7DDB37B1EC}
+	EndGlobalSection
+EndGlobal

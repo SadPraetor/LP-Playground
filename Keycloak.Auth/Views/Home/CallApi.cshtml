@@ -1,0 +1,12 @@
+﻿@model WeatherDto;
+
+@{
+    ViewData["Title"] = "CallApi";
+}
+
+<h1>CallApi</h1>
+
+@foreach(var forecast in Model.Forecasts)
+{
+    <li>@forecast.ToString()</li>
+}
