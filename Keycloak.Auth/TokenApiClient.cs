@@ -1,10 +1,4 @@
-﻿using Keycloak.AuthServices.Authentication;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.CodeAnalysis.Options;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using System.Net.Http;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Keycloak.Auth
 {
