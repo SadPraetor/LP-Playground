@@ -1,17 +1,18 @@
-﻿using System.Text.Json.Serialization;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
-using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace Keycloak.Auth
 {
     public class ApiAuthTokenManager
     {      
-        private JwtSecurityToken? _accessToken;
-        private bool _accessTokenExpired => DateTime.UtcNow > _accessToken?.ValidTo;
-       
-        private JwtSecurityToken? _refreshToken;
-        
+        private string? _accessToken;
+        private string? _refreshToken;
+        private DateTime _accessTokenValidTo;
+        private bool AccessTokenExpired => DateTime.UtcNow > _accessTokenValidTo;
+        private DateTime _refreshTokenValidTo;
+        private bool RefreshTokenExpired => DateTime.UtcNow > _refreshTokenValidTo;
+
         private JwtSecurityTokenHandler _jwtHandler = new JwtSecurityTokenHandler();
 
         private readonly TokenApiClient _tokenApiClient;
@@ -44,8 +45,10 @@ namespace Keycloak.Auth
                 return;
             }
 
-            _accessToken = _jwtHandler.ReadJwtToken(accessToken);
-            _refreshToken = _jwtHandler.ReadJwtToken(refreshToken);
+            _accessToken = accessToken;
+            _refreshToken = refreshToken;
+            _accessTokenValidTo = _jwtHandler.ReadJwtToken(accessToken).ValidTo;
+            _refreshTokenValidTo = _jwtHandler.ReadJwtToken(refreshToken).ValidTo;
         }
 
 
@@ -53,14 +56,20 @@ namespace Keycloak.Auth
         {
             _ = _accessToken ?? throw new InvalidOperationException("Access token is null");
 
-            if (!_accessTokenExpired)
+            if (!AccessTokenExpired)
             {
-                return _accessToken.ToString();
+                return _accessToken;
             }
 
             _ = _refreshToken ?? throw new InvalidOperationException("Refresh token is null");
-            var data = await _tokenApiClient.RefreshTokenAsync(_refreshToken!.ToString());
-            FillTokens(data.AccessToken, data.RefreshToken);
+            var refreshDto = await _tokenApiClient.RefreshTokenAsync(_refreshToken!);
+
+            if(refreshDto is null)
+            {
+                throw new InvalidOperationException("Failed to refresh token");
+            }
+
+            FillTokens(refreshDto.AccessToken, refreshDto.RefreshToken);
            
             await RefreshCookieAsync();
 
@@ -71,8 +80,14 @@ namespace Keycloak.Auth
         private async Task RefreshCookieAsync()
         {
             var context = _contextAccessor.HttpContext;
+            if(context is null)
+            {
+                throw new InvalidOperationException("Context is null");
+            }
+
             var authResult = await context.AuthenticateAsync("Cookies");
-            if (authResult?.Principal != null)
+
+            if (authResult?.Principal is not null && authResult.Properties is not null)
             {
                 var authProperties = authResult.Properties;
 
@@ -81,11 +96,11 @@ namespace Keycloak.Auth
 
                 // Replace or add the access token
                 tokens.RemoveAll(t => t.Name == "access_token");
-                tokens.Add(new AuthenticationToken { Name = "access_token", Value = _accessToken.ToString() });
+                tokens.Add(new AuthenticationToken { Name = "access_token", Value = _accessToken! });
 
                 // Replace or add the refresh token
                 tokens.RemoveAll(t => t.Name == "refresh_token");
-                tokens.Add(new AuthenticationToken { Name = "refresh_token", Value = _refreshToken.ToString() });
+                tokens.Add(new AuthenticationToken { Name = "refresh_token", Value = _refreshToken! });
 
               
                 authProperties.StoreTokens(tokens);
@@ -96,8 +111,5 @@ namespace Keycloak.Auth
                 _logger.LogInformation("Cookie refreshed");
             }
         }
-
-
-        
     }
 }

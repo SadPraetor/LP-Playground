@@ -49,7 +49,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("cc3_test_group", policy =>
     {
-        policy.RequireClaim("groups_membership", "cc3_testx");
+        policy.RequireClaim("groups_membership", "cc3_test");
     });
     options.DefaultPolicy = options.GetPolicy("cc3_test_group")!;
 })

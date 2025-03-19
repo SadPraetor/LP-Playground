@@ -19,7 +19,7 @@ namespace Keycloak.Auth
             _logger = logger;
         }
 
-        internal async Task<RefreshTokenDto> RefreshTokenAsync(string refreshToken)
+        internal async Task<RefreshTokenDto?> RefreshTokenAsync(string refreshToken)
         {
             _logger.LogInformation("Token refresh required");
             var clientId= _configuration.GetValue<string>("Keycloak:resource");
@@ -35,11 +35,19 @@ namespace Keycloak.Auth
 
             
             var response = await _client.PostAsync("token", formContent);
-            response.EnsureSuccessStatusCode();
-            _logger.LogInformation("Token refresh API called with success");
-            var data = await response.Content.ReadFromJsonAsync<RefreshTokenDto>();
 
-            return data;
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Token refresh API called with success");
+                var data = await response.Content.ReadFromJsonAsync<RefreshTokenDto>();
+                return data;
+            }
+
+            _logger.LogError("Refresh request returned status {HttpStatus}", response.StatusCode);
+            var errorDto = await response.Content.ReadFromJsonAsync<ErrorDto>();
+            _logger.LogInformation("Error message: {message}", errorDto);
+
+            return null;
         }
     }
 
@@ -56,5 +64,12 @@ namespace Keycloak.Auth
 
         [JsonPropertyName("refresh_expires_in")]
         public int RefreshExpiresIn { get; init; }
+    }
+
+    internal record ErrorDto
+    {
+        public string Error { get; init; } = default!;
+        [JsonPropertyName("error_description")]
+        public string ErrorDescription { get; init; } = default!;
     }
 }

@@ -39,11 +39,16 @@ public class HomeController : Controller
     
     public async Task<IActionResult> CallApi()
     {
-        var context = this.HttpContext;        
-        var data = await _weatherClient.GetLatestForecastAsync();
-
-
-        return View(data);
+        var context = this.HttpContext;
+        try
+        {
+            var data = await _weatherClient.GetLatestForecastAsync();
+            return View(data);
+        }
+        catch (Exception exception)
+        {
+            return RedirectToAction("Logout");
+        }
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
