@@ -25,7 +25,10 @@ namespace Keycloak.Auth
 
         public async Task InvokeAsync(HttpContext context, ApiAuthTokenManager tokenHandler)
         {           
-            await tokenHandler.SetValuesAsync(context);
+            if(context.User?.Identity?.IsAuthenticated ?? false)
+            {
+                await tokenHandler.SetValuesAsync(context);
+            }
             await _next(context);           
         }
     }

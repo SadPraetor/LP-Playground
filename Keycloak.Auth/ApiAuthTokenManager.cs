@@ -7,21 +7,16 @@ namespace Keycloak.Auth
 {
     public class ApiAuthTokenManager
     {      
-        private DateTime _expiration;
+        private JwtSecurityToken? _accessToken;
+        private bool _accessTokenExpired => DateTime.UtcNow > _accessToken?.ValidTo;
+       
+        private JwtSecurityToken? _refreshToken;
         
-
         private JwtSecurityTokenHandler _jwtHandler = new JwtSecurityTokenHandler();
-        private string? _accessToken;
-        private string? _refreshToken;
+
         private readonly TokenApiClient _tokenApiClient;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger<ApiAuthTokenManager> _logger;
-
-        public string? AccessToken { get => _accessToken; }
-
-        public string? RefreshToken { get => _refreshToken; }
-
-        private bool _accessTokenExpired => DateTime.UtcNow > _expiration;
 
 
         public ApiAuthTokenManager(
@@ -34,43 +29,44 @@ namespace Keycloak.Auth
             _logger = logger;
         }
 
-        public async Task SetValuesAsync (HttpContext currentContext)
+        public async Task SetValuesAsync(HttpContext currentContext)
         {
             var accessToken = await currentContext.GetTokenAsync("access_token");
-            var jwtToken = _jwtHandler.ReadJwtToken(accessToken);
-            _expiration = jwtToken.ValidTo.ToUniversalTime();
-            _accessToken = accessToken;
-
-            _refreshToken = await currentContext.GetTokenAsync("refresh_token");
-            jwtToken = _jwtHandler.ReadJwtToken(_refreshToken);
-            _logger.LogInformation("Refresh token expiration {ValidTo}", jwtToken.ValidTo.ToLocalTime());
+            var refreshToken = await currentContext.GetTokenAsync("refresh_token");
+            FillTokens(accessToken, refreshToken);
         }
 
+        private void FillTokens (string? accessToken, string? refreshToken)
+        {
+            if(accessToken is null || refreshToken is null)
+            {
+                _logger.LogWarning("Unable to fill token information, one of the tokens is null");
+                return;
+            }
+
+            _accessToken = _jwtHandler.ReadJwtToken(accessToken);
+            _refreshToken = _jwtHandler.ReadJwtToken(refreshToken);
+        }
+
+
         public async Task<string> GetTokenAsync()
-        {            
-            _ = AccessToken ?? throw new InvalidOperationException("Access token is null");
-            
+        {
+            _ = _accessToken ?? throw new InvalidOperationException("Access token is null");
+
             if (!_accessTokenExpired)
             {
-                return AccessToken;
+                return _accessToken.ToString();
             }
 
             _ = _refreshToken ?? throw new InvalidOperationException("Refresh token is null");
-
-            var data = await _tokenApiClient.RefreshTokenAsync(_refreshToken);
-
-            _accessToken = data.AccessToken;
-            _refreshToken = data.RefreshToken;
-            _expiration = _jwtHandler.ReadJwtToken(_accessToken).ValidTo;
-
-            var refreshTokenExpiration = _jwtHandler.ReadJwtToken(_refreshToken).ValidTo.ToLocalTime();
-            
-            _logger.LogInformation("New Refresh token expiration {ValidTo}", refreshTokenExpiration);
-
+            var data = await _tokenApiClient.RefreshTokenAsync(_refreshToken!.ToString());
+            FillTokens(data.AccessToken, data.RefreshToken);
+           
             await RefreshCookieAsync();
 
-            return _accessToken;
+            return _accessToken.ToString();
         }
+
 
         private async Task RefreshCookieAsync()
         {
@@ -85,11 +81,11 @@ namespace Keycloak.Auth
 
                 // Replace or add the access token
                 tokens.RemoveAll(t => t.Name == "access_token");
-                tokens.Add(new AuthenticationToken { Name = "access_token", Value = _accessToken });
+                tokens.Add(new AuthenticationToken { Name = "access_token", Value = _accessToken.ToString() });
 
                 // Replace or add the refresh token
                 tokens.RemoveAll(t => t.Name == "refresh_token");
-                tokens.Add(new AuthenticationToken { Name = "refresh_token", Value = _refreshToken });
+                tokens.Add(new AuthenticationToken { Name = "refresh_token", Value = _refreshToken.ToString() });
 
               
                 authProperties.StoreTokens(tokens);

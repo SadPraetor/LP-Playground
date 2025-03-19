@@ -47,11 +47,11 @@ builder
 
 builder.Services.AddAuthorization(options =>
 {
-    //options.AddPolicy("cc3_test_group", policy =>
-    //{
-    //    policy.RequireClaim("groups_membership", "cc3_testx");
-    //});
-    //options.DefaultPolicy = options.GetPolicy("cc3_test_group")!;
+    options.AddPolicy("cc3_test_group", policy =>
+    {
+        policy.RequireClaim("groups_membership", "cc3_testx");
+    });
+    options.DefaultPolicy = options.GetPolicy("cc3_test_group")!;
 })
     .AddKeycloakAuthorization(builder.Configuration);
 

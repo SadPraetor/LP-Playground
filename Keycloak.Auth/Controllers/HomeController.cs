@@ -29,7 +29,7 @@ public class HomeController : Controller
         return View();
     }
 
-    [AllowAnonymous]
+    
     public async Task<IActionResult> Logout()
     {
         await this.HttpContext.SignOutAsync("Cookies"); //default for keycloack
