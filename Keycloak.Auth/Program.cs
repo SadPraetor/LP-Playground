@@ -59,7 +59,7 @@ builder.Services
         {
             OnSignedOutCallbackRedirect = context =>
             {
-                context.Response.Redirect("/Home/Logout");
+                context.Response.Redirect("/");
                 context.HandleResponse();
 
                 return Task.CompletedTask;

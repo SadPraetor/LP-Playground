@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Keycloak.Auth.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Keycloak.Auth.Controllers;
 
@@ -28,8 +30,10 @@ public class HomeController : Controller
     }
 
     [AllowAnonymous]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
+        await this.HttpContext.SignOutAsync("Cookies"); //default for keycloack
+        await this.HttpContext.SignOutAsync(); //default oidc, removes session from keycloack server
         return View();
     }
     
