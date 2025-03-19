@@ -24,7 +24,7 @@ builder
 //    options.Authority = "http://localhost:8071/realms/drivalia";
 
 //    options.RequireHttpsMetadata = false;
-//    //options.Audience = "cc3-test";
+//    //options.Audience = "cc3_test";
 //})
 
 
@@ -45,7 +45,14 @@ builder
 //        })
 ;
 
-builder.Services.AddAuthorization()
+builder.Services.AddAuthorization(options =>
+{
+    //options.AddPolicy("cc3_test_group", policy =>
+    //{
+    //    policy.RequireClaim("groups_membership", "cc3_testx");
+    //});
+    //options.DefaultPolicy = options.GetPolicy("cc3_test_group")!;
+})
     .AddKeycloakAuthorization(builder.Configuration);
 
 

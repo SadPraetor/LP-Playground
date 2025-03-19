@@ -38,7 +38,7 @@ builder.Services
     {
         options.SaveTokens = true;
         options.ResponseType = OpenIdConnectResponseType.Code;
-        options.Scope.Add("offline_access");
+        //options.Scope.Add("offline_access");    //this will generate refresh token that does not expire
 
         options.Events = new OpenIdConnectEvents
         {
@@ -51,6 +51,8 @@ builder.Services
             }
         };
     });
+
+
 
 var test = builder.Services.Where(x => x.ServiceType == typeof(ApiAuthTokenManager))
     .ToList();

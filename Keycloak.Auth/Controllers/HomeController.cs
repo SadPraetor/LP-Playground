@@ -10,16 +10,13 @@ namespace Keycloak.Auth.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly WeatherApiService _weatherClient;
-    private readonly ApiAuthTokenManager _tokenHandler;
+    private readonly WeatherApiService _weatherClient;    
     private readonly ILogger<HomeController> _logger;
 
-    public HomeController(WeatherApiService weatherClient,
-        ApiAuthTokenManager tokenHandler,
+    public HomeController(WeatherApiService weatherClient,       
         ILogger<HomeController> logger)
     {
-        _weatherClient = weatherClient;
-        _tokenHandler = tokenHandler;
+        _weatherClient = weatherClient;       
         _logger = logger;
     }
 
@@ -41,8 +38,8 @@ public class HomeController : Controller
     
     public async Task<IActionResult> CallApi()
     {
+        var context = this.HttpContext;        
         var data = await _weatherClient.GetLatestForecastAsync();
-
 
 
         return View(data);

@@ -50,6 +50,7 @@ namespace Keycloak.Auth
         [JsonPropertyName("expires_in")]
         public int ExpiresIn { get; init; }
 
-
+        [JsonPropertyName("refresh_expires_in")]
+        public int RefreshExpiresIn { get; init; }
     }
 }
