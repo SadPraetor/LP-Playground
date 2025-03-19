@@ -2,10 +2,23 @@ using Keycloak.Auth;
 using Keycloak.AuthServices.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Serilog;
+using Serilog.Events;
 using System.Diagnostics;
+using System.Globalization;
 using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Verbose()
+    .WriteTo.Console(
+        outputTemplate: "[{Level:u4}] | {Message:lj}{NewLine}{Exception}",
+        restrictedToMinimumLevel: LogEventLevel.Information,
+        formatProvider: CultureInfo.InvariantCulture)
+    .CreateBootstrapLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

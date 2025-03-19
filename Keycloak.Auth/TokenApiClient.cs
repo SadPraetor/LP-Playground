@@ -7,17 +7,21 @@ namespace Keycloak.Auth
         
         private readonly HttpClient _client;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<TokenApiClient> _logger;
 
         public TokenApiClient(HttpClient client, 
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ILogger<TokenApiClient> logger)
         {
             
             _client = client;
             _configuration = configuration;
+            _logger = logger;
         }
 
         internal async Task<RefreshTokenDto> RefreshTokenAsync(string refreshToken)
         {
+            _logger.LogInformation("Token refresh required");
             var clientId= _configuration.GetValue<string>("Keycloak:resource");
             var secret = _configuration.GetValue<string>("Keycloak:credentials:secret");
 
@@ -32,7 +36,7 @@ namespace Keycloak.Auth
             
             var response = await _client.PostAsync("token", formContent);
             response.EnsureSuccessStatusCode();
-
+            _logger.LogInformation("Token refresh API called with success");
             var data = await response.Content.ReadFromJsonAsync<RefreshTokenDto>();
 
             return data;

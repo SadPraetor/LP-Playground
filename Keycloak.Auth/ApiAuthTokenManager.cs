@@ -96,6 +96,8 @@ namespace Keycloak.Auth
 
                 // Re-issue the cookie with updated tokens
                 await context.SignInAsync("Cookies", authResult.Principal, authProperties);
+
+                _logger.LogInformation("Cookie refreshed");
             }
         }
 
