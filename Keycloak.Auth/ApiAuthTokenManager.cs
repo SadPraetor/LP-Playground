@@ -34,7 +34,13 @@ namespace Keycloak.Auth
             _accessToken = accessToken;
 
             _refreshToken = await currentContext.GetTokenAsync("refresh_token");
+
+
             _expiration = jwtToken.ValidTo.ToUniversalTime();
+
+            jwtToken = _jwtHandler.ReadJwtToken(_refreshToken);
+
+
         }
 
         public async Task<string> GetTokenAsync()

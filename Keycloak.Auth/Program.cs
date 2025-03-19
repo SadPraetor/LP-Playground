@@ -37,7 +37,7 @@ builder.Services
     configureOpenIdConnectOptions: options =>
     {
         options.SaveTokens = true;
-        options.ResponseType = OpenIdConnectResponseType.Code;
+        options.ResponseType = OpenIdConnectResponseType.Code; //required for refresh token to come with initial login
         //options.Scope.Add("offline_access");    //this will generate refresh token that does not expire
 
         options.Events = new OpenIdConnectEvents
