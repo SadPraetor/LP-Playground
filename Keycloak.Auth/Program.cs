@@ -15,6 +15,8 @@ builder.Services.AddScoped<ApiAuthTokenManager>();
 builder.Services.AddTransient<ApiAuthenticationMessageHandler>();
 builder.Services.AddTransient<WeatherApiService>();
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddHttpClient<TokenApiClient>(nameof(TokenApiClient),client =>
 {
     client.BaseAddress = new Uri("http://localhost:8071/realms/drivalia/protocol/openid-connect/token");

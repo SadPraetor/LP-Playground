@@ -2,9 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Keycloak.Auth.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using System;
 
 namespace Keycloak.Auth.Controllers;
 
