@@ -1,6 +1,8 @@
 using Keycloak.AuthServices.Authentication;
 using Keycloak.AuthServices.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.CommandLine;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,50 +12,43 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//lines below also work
+//builder.Services.AddAuthentication("keycloak")    
+//     .AddKeycloakWebApi(builder.Configuration, jwtBearerScheme: "keycloak");
 
+////with different schema
+//builder
+//.Services
+//.AddKeycloakWebApiAuthentication(builder.Configuration,jwtBearerScheme:"keycloak");
+
+////default
+//builder
+//.Services
+//.AddKeycloakWebApiAuthentication(builder.Configuration);
 
 builder
 .Services
-.AddKeycloakWebApiAuthentication(builder.Configuration);
-
-//.Services
-//.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//.AddJwtBearer(options =>
-//{
-//    options.MetadataAddress = "http://localhost:8071/realms/drivalia/.well-known/openid-configuration";
-//    options.Authority = "http://localhost:8071/realms/drivalia";
-
-//    options.RequireHttpsMetadata = false;
-//    //options.Audience = "cc3_test";
-//})
-
-
-//.Services
-//.AddAuthentication()
-//.AddKeycloakWebApi(builder.Configuration)
-
-
-//.Services
-//.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//        //.AddApiKey()
-//        .AddKeycloakWebApi(builder.Configuration, jwtOptions =>
-//        {
-//            if (builder.Environment.IsDevelopment())
-//            {
-//                jwtOptions.RequireHttpsMetadata = false;
-//            }
-//        })
-;
-
-builder.Services.AddAuthorization(options =>
+.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+.AddJwtBearer(options =>
 {
-    options.AddPolicy("cc3_test_group", policy =>
-    {
-        policy.RequireClaim("groups_membership", "cc3_test");
-    });
-    options.DefaultPolicy = options.GetPolicy("cc3_test_group")!;
+    //options.MetadataAddress = "http://localhost:8071/realms/drivalia/.well-known/openid-configuration";
+    options.Authority = "http://localhost:8071/realms/drivalia";
+    options.TokenValidationParameters.ValidateAudience = true;
+    options.RequireHttpsMetadata = false;
+    options.Audience = "cc3_test";
 })
-    .AddKeycloakAuthorization(builder.Configuration);
+
+;
+builder.Services.AddAuthorization();
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.AddPolicy("cc3_test_group", policy =>
+//    {
+//        policy.RequireClaim("groups_membership", "cc3_test");
+//    });
+//    options.DefaultPolicy = options.GetPolicy("cc3_test_group")!;
+//})
+//    .AddKeycloakAuthorization(builder.Configuration);
 
 
 
