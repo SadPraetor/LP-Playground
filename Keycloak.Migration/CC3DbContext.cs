@@ -20,7 +20,9 @@ namespace Keycloak.Migration
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Account>()
-                .ToTable(nameof(Account), "dbo");
+                .ToView(nameof(Account), "dbo");
+            modelBuilder.Entity<Account>()
+                .HasKey(x => x.PortalUserName);
                 
             base.OnModelCreating(modelBuilder);
         }
