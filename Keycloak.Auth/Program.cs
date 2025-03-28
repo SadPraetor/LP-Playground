@@ -1,5 +1,6 @@
 using Keycloak.Auth;
 using Keycloak.AuthServices.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Serilog;
@@ -7,6 +8,7 @@ using Serilog.Events;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,30 +45,63 @@ builder.Services.AddHttpClient("weather", client =>
 });
 
 
-
-builder.Services
-    .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-    .AddKeycloakWebApp(builder.Configuration.GetSection("Keycloak"),
+//#### working defaults
+//builder.Services
+//    .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+//    .AddKeycloakWebApp(builder.Configuration.GetSection("Keycloak"),
    
 
-    configureOpenIdConnectOptions: options =>
+//    configureOpenIdConnectOptions: options =>
+//    {
+//        options.SaveTokens = true;
+//        options.ResponseType = OpenIdConnectResponseType.Code; //required for refresh token to come with initial login
+//        //options.Scope.Add("offline_access");    //this will generate refresh token that does not expire
+
+//        options.Events = new OpenIdConnectEvents
+//        {
+//            OnSignedOutCallbackRedirect = context =>
+//            {
+//                context.Response.Redirect("/");
+//                context.HandleResponse();
+
+//                return Task.CompletedTask;
+//            }
+//        };
+//    });
+//################
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+})
+.AddCookie(options =>
+{
+    options.Events.OnSigningIn = context =>
     {
-        options.SaveTokens = true;
-        options.ResponseType = OpenIdConnectResponseType.Code; //required for refresh token to come with initial login
-        //options.Scope.Add("offline_access");    //this will generate refresh token that does not expire
+        // Modify the claims or properties in the cookie's ticket.
+        var identity = context.Principal.Identity as ClaimsIdentity;
+        identity.AddClaim(new Claim("CustomClaim", "CustomValue"));
+        return Task.CompletedTask;
+    };
+})
+.AddOpenIdConnect(options =>
+{
+    options.Authority = "http://localhost:8071/realms/drivalia";
+    options.ClientId = "cc3_test";
+    options.ClientSecret = "8M7nFXs3zYgs4dhcagVH21R9sIdNHhCV";
+    // Set callback to the endpoint that processes the login response
+    options.CallbackPath = "/account/user";
+    options.AccessDeniedPath = "/home/logout";
+    options.ReturnUrlParameter = "redirect_uri";
+    options.ResponseType = "code";
+    options.SaveTokens = true;
+    options.RequireHttpsMetadata = false;
 
-        options.Events = new OpenIdConnectEvents
-        {
-            OnSignedOutCallbackRedirect = context =>
-            {
-                context.Response.Redirect("/");
-                context.HandleResponse();
+    
+    
 
-                return Task.CompletedTask;
-            }
-        };
-    });
-
+});
 
 
 var test = builder.Services.Where(x => x.ServiceType == typeof(ApiAuthTokenManager))
