@@ -5,6 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sharprompt;
 using System.ComponentModel.DataAnnotations;
+using Keycloak.AuthServices.Sdk;
+using Keycloak.AuthServices.Sdk.Admin;
+using Keycloak.AuthServices.Common;
 
 Console.WriteLine("Hello, World!");
 
@@ -20,8 +23,30 @@ services.AddSingleton<IConfiguration>(configuration);
 services.AddDbContext<CC3DbContext>(options => options.UseSqlServer(configuration.GetConnectionString("cc3")),optionsLifetime: ServiceLifetime.Singleton);
 services.AddSingleton<AccountDownloader>();
 
+var options = configuration.GetKeycloakOptions<KeycloakAdminClientOptions>();
+
+services.AddDistributedMemoryCache();
+services.AddClientCredentialsTokenManagement()
+    .AddClient(
+        "cc3_migration",
+        client =>
+        {
+            client.ClientId = options.Resource;
+            client.ClientSecret = options.Credentials.Secret;
+            client.TokenEndpoint = options.KeycloakTokenEndpoint;
+        });
+
+
+services.AddKeycloakAdminHttpClient(configuration)
+    .AddClientCredentialsTokenHandler("cc3_migration");
+
 var serviceProvider = services.BuildServiceProvider();
 
+var keycloakClient = serviceProvider.GetRequiredService<IKeycloakClient>();
+
+
+var realm = await keycloakClient.GetRealmAsync("drivalia");
+return;
 
 while (true)
 {

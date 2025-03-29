@@ -19,7 +19,7 @@ namespace Keycloak.Migration
             var accounts = await _context.Accounts
                 .ToArrayAsync();
 
-            if (Path.GetExtension(filename).IsNullOrEmpty())
+            if (string.IsNullOrEmpty(Path.GetExtension(filename)))
             {
                 filename = filename + ".txt";
             }
