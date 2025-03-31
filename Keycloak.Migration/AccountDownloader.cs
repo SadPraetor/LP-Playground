@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using System.IO;
+using System.Text.Json;
 
 namespace Keycloak.Migration
 {
@@ -16,21 +15,23 @@ namespace Keycloak.Migration
 
         public async Task ExportAccounts(string filename)
         {
-            var accounts = await _context.Accounts
+            var userDtos = await _context.Accounts                
+                .Select(x=> new UserDto(x.PortalUserName,x.Identity.FirstName,x.Identity.LastName,x.Identity.Email))
                 .ToArrayAsync();
 
             if (string.IsNullOrEmpty(Path.GetExtension(filename)))
             {
-                filename = filename + ".txt";
+                filename = filename + ".json";
             }
 
             var path = Path.Combine(Directory.GetCurrentDirectory(), filename);
 
-            var stream = new FileStream(filename, FileMode.OpenOrCreate);
+            using var stream = new FileStream(filename, FileMode.OpenOrCreate);
 
-            foreach(var account in accounts)
+            foreach(var user in userDtos)
             {
-                await stream.WriteAsync(Encoding.UTF8.GetBytes(account.PortalUserName));
+                await JsonSerializer.SerializeAsync(stream, user);
+                //await stream.WriteAsync(Encoding.UTF8.GetBytes(JsonSerializer.SerializeAsync( user));
                 stream.WriteByte(Convert.ToByte('\r'));
                 stream.WriteByte(Convert.ToByte('\n'));
             }

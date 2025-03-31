@@ -1,10 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Keycloak.Migration
 {
@@ -19,15 +14,36 @@ namespace Keycloak.Migration
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Account>()
-                .ToView(nameof(Account), "dbo");
-            modelBuilder.Entity<Account>()
-                .HasKey(x => x.PortalUserName);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(Program).Assembly);
                 
             base.OnModelCreating(modelBuilder);
         }
     }
 
-    public record Account(string PortalUserName);
+    public class AccountConfiguration : IEntityTypeConfiguration<Account>
+    {
+        public void Configure(EntityTypeBuilder<Account> builder)
+        {
+            builder.ToView(nameof(Account), "dbo");
+            builder.HasKey(a => a.Id);
+            builder.OwnsOne<Identity>(x => x.Identity, nestedBuilder =>
+            {
+                nestedBuilder.ToView(nameof(Identity), "dbo");
+                nestedBuilder.HasKey(i => i.IdentityId);
+                nestedBuilder.WithOwner()
+                .HasForeignKey(x => x.AccountId)
+                .HasPrincipalKey(a => a.Id);
+            });                
+        }
+    }
+
+   
+
+    public record Account(int Id,string PortalUserName)
+    {
+        public Identity Identity { get; init; } = default!;
+    }
+
+    public record Identity (int IdentityId, int AccountId, string? FirstName, string? LastName, string? Email);
     
 }

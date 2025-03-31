@@ -6,19 +6,36 @@ using Microsoft.Extensions.DependencyInjection;
 using Sharprompt;
 using System.ComponentModel.DataAnnotations;
 using Keycloak.AuthServices.Sdk;
-using Keycloak.AuthServices.Sdk.Admin;
 using Keycloak.AuthServices.Common;
+using Duende.AccessTokenManagement;
+using Serilog.Events;
+using Serilog;
+using System.Globalization;
 
 Console.WriteLine("Hello, World!");
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Verbose()
+    .WriteTo.Console(
+        outputTemplate: "[{Level:u4}] | {Message:lj}{NewLine}{Exception}",
+        restrictedToMinimumLevel: LogEventLevel.Information,
+        formatProvider: CultureInfo.InvariantCulture)
+    .CreateBootstrapLogger();
+
 
 
 var configurationBuilder = new ConfigurationBuilder();
 
+
 configurationBuilder.AddJsonFile("appsettings.json",false);
+
 
 var configuration = configurationBuilder.Build();
 
 var services = new ServiceCollection();
+
+services.AddSerilog(Log.Logger);
+
 services.AddSingleton<IConfiguration>(configuration);
 services.AddDbContext<CC3DbContext>(options => options.UseSqlServer(configuration.GetConnectionString("cc3")),optionsLifetime: ServiceLifetime.Singleton);
 services.AddSingleton<AccountDownloader>();
@@ -28,7 +45,7 @@ var options = configuration.GetKeycloakOptions<KeycloakAdminClientOptions>();
 services.AddDistributedMemoryCache();
 services.AddClientCredentialsTokenManagement()
     .AddClient(
-        "cc3_migration",
+        "keycloak",
         client =>
         {
             client.ClientId = options.Resource;
@@ -36,17 +53,39 @@ services.AddClientCredentialsTokenManagement()
             client.TokenEndpoint = options.KeycloakTokenEndpoint;
         });
 
+//services.AddClientCredentialsHttpClient("cc3_migration", "keycloak", client =>
+//{
+//    client.BaseAddress = new Uri(options.AuthServerUrl);
+//});
 
-services.AddKeycloakAdminHttpClient(configuration)
-    .AddClientCredentialsTokenHandler("cc3_migration");
+
+//services.AddKeycloakAdminHttpClient(configuration)
+//    .AddClientCredentialsTokenHandler("keycloak");
+
+
+services.AddTransient<Keycloak.Net.KeycloakClient>(sp=>
+{
+    var handler = sp.GetRequiredService<IClientCredentialsTokenManagementService>();
+
+    return new Keycloak.Net.KeycloakClient(options.AuthServerUrl, ()=> handler.GetAccessTokenAsync("keycloak").GetAwaiter().GetResult().AccessToken);
+});
+
+services.AddTransient<KeycloakSetup>();
+services.AddTransient<UserMigrationService>();
+services.AddSingleton<TemporaryPasswordGenerator>();
+
 
 var serviceProvider = services.BuildServiceProvider();
 
-var keycloakClient = serviceProvider.GetRequiredService<IKeycloakClient>();
+//var migrationService = serviceProvider.GetRequiredService<UserMigrationService>();
+
+//await migrationService.MigrateUsersFromFile();
 
 
-var realm = await keycloakClient.GetRealmAsync("drivalia");
-return;
+
+
+
+//return;
 
 while (true)
 {
@@ -65,8 +104,12 @@ while (true)
 
             break;
         case ActionEnum.SetupKeycloakGroup:
+            var client = serviceProvider.GetRequiredService<KeycloakSetup>();
+            await client.SetupKeycloakAsync("prod");
             break;
         case ActionEnum.MigrateUsers:
+            var migrationService = serviceProvider.GetRequiredService<UserMigrationService>();
+            await migrationService.MigrateUsersFromFile("prod");
             break;
         default:
             break;
