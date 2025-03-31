@@ -14,13 +14,13 @@ using System.Globalization;
 
 Console.WriteLine("Hello, World!");
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Verbose()
-    .WriteTo.Console(
-        outputTemplate: "[{Level:u4}] | {Message:lj}{NewLine}{Exception}",
-        restrictedToMinimumLevel: LogEventLevel.Information,
-        formatProvider: CultureInfo.InvariantCulture)
-    .CreateBootstrapLogger();
+//Log.Logger = new LoggerConfiguration()
+//    .MinimumLevel.Verbose()
+//    .WriteTo.Console(
+//        outputTemplate: "[{Level:u4}] | {Message:lj}{NewLine}{Exception}",
+//        restrictedToMinimumLevel: LogEventLevel.Information,
+//        formatProvider: CultureInfo.InvariantCulture)
+//    .CreateBootstrapLogger();
 
 
 
@@ -34,7 +34,20 @@ var configuration = configurationBuilder.Build();
 
 var services = new ServiceCollection();
 
-services.AddSerilog(Log.Logger);
+services.AddSerilog(options =>
+{
+    options
+        .MinimumLevel.Verbose()
+        .WriteTo.Console(
+            outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u4}] {Message:lj}{NewLine}{Exception}",
+            restrictedToMinimumLevel: LogEventLevel.Information,
+            formatProvider: CultureInfo.InvariantCulture)
+        .WriteTo.File(
+            "logs/log-.log",
+            outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u4}] {Message:lj}{NewLine}{Exception}",
+            rollingInterval: RollingInterval.Day,
+            restrictedToMinimumLevel: LogEventLevel.Information);
+});
 
 services.AddSingleton<IConfiguration>(configuration);
 services.AddDbContext<CC3DbContext>(options => options.UseSqlServer(configuration.GetConnectionString("cc3")),optionsLifetime: ServiceLifetime.Singleton);
@@ -109,7 +122,7 @@ while (true)
             break;
         case ActionEnum.MigrateUsers:
             var migrationService = serviceProvider.GetRequiredService<UserMigrationService>();
-            await migrationService.MigrateUsersFromFile("prod");
+            await migrationService.MigrateUsersFromFile("test");
             break;
         default:
             break;
