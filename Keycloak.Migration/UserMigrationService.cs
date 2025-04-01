@@ -25,14 +25,12 @@ namespace Keycloak.Migration
         public async Task MigrateUsersFromFile(string environment = "test")
         {
             List<UserDto> userDtos = new();
-            using (FileStream fileStream = File.OpenRead("accounts.json"))
+            using (FileStream fileStream = File.OpenRead("accounts-prod-v2.json"))
             {
 
                 using StreamReader reader = new StreamReader(fileStream);
 
-                var group = await _client.GetRealmGroupByPathAsync(_realm, $"/cc3_{environment}");
-
-                var action = await _client.GetRequiredActionsAsync(_realm);
+                var group = await _client.GetRealmGroupByPathAsync(_realm, $"/cc3_{environment}");                
 
                 if(group is null)
                 {
@@ -47,13 +45,22 @@ namespace Keycloak.Migration
                     {
                         if (!string.IsNullOrEmpty(line))
                         {
-                            var userDto = JsonSerializer.Deserialize<UserDto>(line);                    
+                            var userDto = JsonSerializer.Deserialize<UserDto>(line);
+
+                            if (userDto is null)
+                            {
+                                _logger.LogWarning("Failed to deserialize line {line} into UserDto", line);
+                                continue;
+                            }
+
+                            _logger.LogInformation("Processing {user}", userDto.PortalUserName);
 
                             var existingUser = await FindUserAsync(userDto.PortalUserName);
 
                             if(existingUser is not null)
                             {
                                 _logger.LogInformation("User {user} exists in realm {realm}", userDto.PortalUserName, _realm);
+                                userDto.UserCreatedByProcess = false;
                             }
                             else
                             {
@@ -91,7 +98,7 @@ namespace Keycloak.Migration
 
         }
 
-        private async Task<User?> FindUserAsync(string username)
+        internal async Task<User?> FindUserAsync(string username)
         {
 
             try
@@ -116,12 +123,11 @@ namespace Keycloak.Migration
                 },
                 FirstName = userDto.FirstName,
                 LastName = userDto.LastName ?? string.Empty,
-                Email = userDto.PortalUserName,
+                Email = userDto.Email ?? string.Empty,
                 Groups = [$"cc3_{environment}"],
                 Enabled = true,
                // RequiredActions = new List<string>() { "UPDATE_PASSWORD" }
             };
-
             
 
             var created = await _client.CreateUserAsync(_realm, user);
@@ -131,9 +137,7 @@ namespace Keycloak.Migration
                 _logger.LogWarning("Failed to create user {portalusername}", userDto.PortalUserName);
                 userDto.UserCreatedByProcess = false;
                 return null;
-            }
-
-            
+            }                       
 
             userDto.UserCreatedByProcess = true;
             _logger.LogInformation("Created user {portalusernam} in realm {realm}", userDto.PortalUserName, _realm);
@@ -189,7 +193,7 @@ namespace Keycloak.Migration
                 _logger.LogInformation("User {user} already has attribute cc3_portalusername", user.UserName);
                 return;
             }
-
+            user.Attributes ??= new Dictionary<string, IEnumerable<string>>();
             user.Attributes.Add("cc3_portalusername", [userDto.PortalUserName]);
 
             var updated = await _client.UpdateUserAsync(_realm, user.Id, user);

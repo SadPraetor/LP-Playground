@@ -26,7 +26,7 @@ namespace Keycloak.Migration
         {
             builder.ToView(nameof(Account), "dbo");
             builder.HasKey(a => a.Id);
-            builder.OwnsOne<Identity>(x => x.Identity, nestedBuilder =>
+            builder.OwnsMany<Identity>(x => x.Identities, nestedBuilder =>
             {
                 nestedBuilder.ToView(nameof(Identity), "dbo");
                 nestedBuilder.HasKey(i => i.IdentityId);
@@ -41,9 +41,9 @@ namespace Keycloak.Migration
 
     public record Account(int Id,string PortalUserName)
     {
-        public Identity Identity { get; init; } = default!;
+        public List<Identity> Identities { get; init; } = default!;
     }
 
-    public record Identity (int IdentityId, int AccountId, string? FirstName, string? LastName, string? Email);
+    public record Identity (string IdentityId, int AccountId, string? FirstName, string? LastName, string? Email, bool Enabled);
     
 }

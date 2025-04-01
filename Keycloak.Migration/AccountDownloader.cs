@@ -15,9 +15,16 @@ namespace Keycloak.Migration
 
         public async Task ExportAccounts(string filename)
         {
-            var userDtos = await _context.Accounts                
-                .Select(x=> new UserDto(x.PortalUserName,x.Identity.FirstName,x.Identity.LastName,x.Identity.Email))
-                .ToArrayAsync();
+            var userDtos = (await _context.Accounts
+                .Where(x => x.Identities.Any(i => i.Enabled))
+                .ToArrayAsync())            
+                .Select(x => 
+                {
+                    var enabledIdentity = x.Identities.First(i => i.Enabled);
+                    return new UserDto(x.PortalUserName, enabledIdentity.FirstName ?? string.Empty, enabledIdentity.LastName, enabledIdentity.Email);
+                })            
+                .DistinctBy(x => x.PortalUserName)
+                .ToArray();
 
             if (string.IsNullOrEmpty(Path.GetExtension(filename)))
             {

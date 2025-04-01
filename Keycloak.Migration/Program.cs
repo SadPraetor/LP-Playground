@@ -86,14 +86,14 @@ services.AddTransient<Keycloak.Net.KeycloakClient>(sp=>
 services.AddTransient<KeycloakSetup>();
 services.AddTransient<UserMigrationService>();
 services.AddSingleton<TemporaryPasswordGenerator>();
-
+services.AddSingleton<UpdatePasswordActionHandler>();
 
 var serviceProvider = services.BuildServiceProvider();
 
 
 while (true)
 {
-    var action = Prompt.Select<ActionEnum>("What you wanna do?", [ActionEnum.ExportAccounts, ActionEnum.SetupKeycloakGroup, ActionEnum.MigrateUsers, ActionEnum.Exit]);
+    var action = Prompt.Select<ActionEnum>("What you wanna do?", [ActionEnum.ExportAccounts, ActionEnum.SetupKeycloakGroup, ActionEnum.MigrateUsers, ActionEnum.UpdatePassword,ActionEnum.Exit]);
 
     if(action is ActionEnum.Exit)
     {
@@ -113,7 +113,11 @@ while (true)
             break;
         case ActionEnum.MigrateUsers:
             var migrationService = serviceProvider.GetRequiredService<UserMigrationService>();
-            await migrationService.MigrateUsersFromFile("test");
+            await migrationService.MigrateUsersFromFile("production");
+            break;
+        case ActionEnum.UpdatePassword:
+            var handler = serviceProvider.GetRequiredService<UpdatePasswordActionHandler>();
+            await handler.SetActionUpdatePasswordAsync();
             break;
         default:
             break;
@@ -132,5 +136,7 @@ public enum ActionEnum
     [Display(Name ="Setup in Keycloak group, role, attribute mapping")]
     SetupKeycloakGroup,
     [Display(Name ="Migrate users")]
-    MigrateUsers
+    MigrateUsers,
+    [Display(Name ="Set Update_Password")]
+    UpdatePassword
 }
