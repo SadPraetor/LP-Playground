@@ -90,15 +90,6 @@ services.AddSingleton<TemporaryPasswordGenerator>();
 
 var serviceProvider = services.BuildServiceProvider();
 
-//var migrationService = serviceProvider.GetRequiredService<UserMigrationService>();
-
-//await migrationService.MigrateUsersFromFile();
-
-
-
-
-
-//return;
 
 while (true)
 {
