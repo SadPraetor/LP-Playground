@@ -5,20 +5,20 @@ using System.Text.Json;
 
 namespace Keycloak.Migration
 {
-    public class UpdatePasswordActionHandler
+    public class SetPasswordHandler
     {
         private const string _realm = "drivalia";
         private readonly KeycloakClient _client;
         private readonly ILogger<UpdatePasswordActionHandler> _logger;
 
-        public UpdatePasswordActionHandler(Keycloak.Net.KeycloakClient client,
+        public SetPasswordHandler(Keycloak.Net.KeycloakClient client,
             ILogger<UpdatePasswordActionHandler> logger)
         {
             _client = client;
             _logger = logger;
         }
 
-        public async Task SetActionUpdatePasswordAsync()
+        public async Task SetNewPasswordAsync(string newPassword)
         {
             List<UserDto> userDtos = new();
             using (FileStream fileStream = File.OpenRead("accounts-test-v2-migration.json"))
@@ -41,32 +41,49 @@ namespace Keycloak.Migration
                                 continue;
                             }
 
+                            _logger.LogInformation("Processing {user}", userDto.PortalUserName);
+
                             if (!userDto.UserCreatedByProcess.GetValueOrDefault())
                             {
+                                _logger.LogInformation("Skipping set password for user {user}", userDto.PortalUserName);
                                 continue;
                             }
 
-                            _logger.LogInformation("Processing {user}", userDto.PortalUserName);
 
                             var user = await FindUserAsync(userDto.PortalUserName);
 
-                            if(user is null)
+                            if (user is null)
                             {
                                 _logger.LogWarning("Failed to find user {portalusername}", userDto.PortalUserName);
                                 continue;
                             }
-
-                            user.RequiredActions = new List<string>() { "UPDATE_PASSWORD" };
-
-                            await _client.UpdateUserAsync(_realm, user.Id, user);
-                            _logger.LogInformation("UPDATE_PASSWORD action set for {user}", userDto.PortalUserName);
+                            //var response = await _client.ResetUserPasswordAsync(_realm, user.Id, newPassword, true);
+                            var response = await _client.SetUserPasswordAsync(_realm, user.Id, newPassword);
+                            if (response.Success)
+                            {
+                                _logger.LogInformation("Password set for user {user} password {password}" , userDto.PortalUserName,newPassword);
+                                userDto.TemporaryGeneratedPassword = newPassword;
+                                userDtos.Add(userDto);
+                            }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception exception)
                     {
-
-                    }
+                        _logger.LogWarning("Failed to process line");
+                    }                    
                 }
+
+                using var stream = new FileStream("accounts.json", FileMode.OpenOrCreate);
+
+                foreach (var user in userDtos)
+                {
+                    await JsonSerializer.SerializeAsync(stream, user);
+                    //await stream.WriteAsync(Encoding.UTF8.GetBytes(JsonSerializer.SerializeAsync( user));
+                    stream.WriteByte(Convert.ToByte('\r'));
+                    stream.WriteByte(Convert.ToByte('\n'));
+                }
+
+                await stream.FlushAsync();
             }
         }
 

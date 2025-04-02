@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keycloak.API", "Keycloak.AP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keycloak.Migration", "Keycloak.Migration\Keycloak.Migration.csproj", "{5DC3B031-DC2D-48B4-B3D5-C1B2677B9606}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keycloak.Migration.Filter", "Keycloak.Migration.Filter\Keycloak.Migration.Filter.csproj", "{2E89D45F-99C5-4575-9F5C-A2BD574D3895}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{5DC3B031-DC2D-48B4-B3D5-C1B2677B9606}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DC3B031-DC2D-48B4-B3D5-C1B2677B9606}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DC3B031-DC2D-48B4-B3D5-C1B2677B9606}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E89D45F-99C5-4575-9F5C-A2BD574D3895}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E89D45F-99C5-4575-9F5C-A2BD574D3895}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E89D45F-99C5-4575-9F5C-A2BD574D3895}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E89D45F-99C5-4575-9F5C-A2BD574D3895}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

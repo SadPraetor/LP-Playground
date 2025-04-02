@@ -52,6 +52,7 @@ services.AddSerilog(options =>
 services.AddSingleton<IConfiguration>(configuration);
 services.AddDbContext<CC3DbContext>(options => options.UseSqlServer(configuration.GetConnectionString("cc3")),optionsLifetime: ServiceLifetime.Singleton);
 services.AddSingleton<AccountDownloader>();
+services.AddSingleton<SetPasswordHandler>();
 
 var options = configuration.GetKeycloakOptions<KeycloakAdminClientOptions>();
 
@@ -87,13 +88,20 @@ services.AddTransient<KeycloakSetup>();
 services.AddTransient<UserMigrationService>();
 services.AddSingleton<TemporaryPasswordGenerator>();
 services.AddSingleton<UpdatePasswordActionHandler>();
+services.AddSingleton<FindUsers>();
+
 
 var serviceProvider = services.BuildServiceProvider();
 
+//var findUsersService = serviceProvider.GetRequiredService<FindUsers>();
+
+//findUsersService.FilterNewProdUsers();
+
+//return;
 
 while (true)
 {
-    var action = Prompt.Select<ActionEnum>("What you wanna do?", [ActionEnum.ExportAccounts, ActionEnum.SetupKeycloakGroup, ActionEnum.MigrateUsers, ActionEnum.UpdatePassword,ActionEnum.Exit]);
+    var action = Prompt.Select<ActionEnum>("What you wanna do?", [ActionEnum.ExportAccounts, ActionEnum.SetupKeycloakGroup, ActionEnum.MigrateUsers, ActionEnum.UpdatePassword,ActionEnum.SetPassword, ActionEnum.Exit]);
 
     if(action is ActionEnum.Exit)
     {
@@ -113,11 +121,15 @@ while (true)
             break;
         case ActionEnum.MigrateUsers:
             var migrationService = serviceProvider.GetRequiredService<UserMigrationService>();
-            await migrationService.MigrateUsersFromFile("production");
+            await migrationService.MigrateUsersFromFile("test");
             break;
         case ActionEnum.UpdatePassword:
             var handler = serviceProvider.GetRequiredService<UpdatePasswordActionHandler>();
             await handler.SetActionUpdatePasswordAsync();
+            break;
+        case ActionEnum.SetPassword:
+            var passwordHandler = serviceProvider.GetRequiredService<SetPasswordHandler>();
+            await passwordHandler.SetNewPasswordAsync("Auticko2024@@");
             break;
         default:
             break;
@@ -138,5 +150,7 @@ public enum ActionEnum
     [Display(Name ="Migrate users")]
     MigrateUsers,
     [Display(Name ="Set Update_Password")]
-    UpdatePassword
+    UpdatePassword,
+    [Display(Name = "Set new user password")]
+    SetPassword
 }

@@ -25,7 +25,7 @@ namespace Keycloak.Migration
         public async Task MigrateUsersFromFile(string environment = "test")
         {
             List<UserDto> userDtos = new();
-            using (FileStream fileStream = File.OpenRead("accounts-prod-v2.json"))
+            using (FileStream fileStream = File.OpenRead("accounts-test-v2.json"))
             {
 
                 using StreamReader reader = new StreamReader(fileStream);
