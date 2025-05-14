@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirstCallsDb", "FirstCallsDb\FirstCallsDb.csproj", "{81BE7315-E92C-46DB-81F0-EC2CFBED2B14}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrpDbCalls", "CrpDbCalls\CrpDbCalls.csproj", "{81BE7315-E92C-46DB-81F0-EC2CFBED2B14}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetObjectIdByObjectNbr", "GetObjectIdByObjectNbr\GetObjectIdByObjectNbr.csproj", "{A775282C-DE59-4047-9713-7775DE1F418F}"
 EndProject
@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keycloak.API", "Keycloak.AP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keycloak.Migration", "Keycloak.Migration\Keycloak.Migration.csproj", "{5DC3B031-DC2D-48B4-B3D5-C1B2677B9606}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keycloak.Migration.Filter", "Keycloak.Migration.Filter\Keycloak.Migration.Filter.csproj", "{2E89D45F-99C5-4575-9F5C-A2BD574D3895}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NOLS", "NOLS\NOLS.csproj", "{35449444-0522-4072-951E-1934FB65F34C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{5DC3B031-DC2D-48B4-B3D5-C1B2677B9606}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DC3B031-DC2D-48B4-B3D5-C1B2677B9606}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DC3B031-DC2D-48B4-B3D5-C1B2677B9606}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2E89D45F-99C5-4575-9F5C-A2BD574D3895}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2E89D45F-99C5-4575-9F5C-A2BD574D3895}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2E89D45F-99C5-4575-9F5C-A2BD574D3895}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2E89D45F-99C5-4575-9F5C-A2BD574D3895}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35449444-0522-4072-951E-1934FB65F34C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35449444-0522-4072-951E-1934FB65F34C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35449444-0522-4072-951E-1934FB65F34C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35449444-0522-4072-951E-1934FB65F34C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

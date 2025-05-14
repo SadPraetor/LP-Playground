@@ -1,4 +1,4 @@
-﻿namespace FirstCallsDb
+﻿namespace CrpDbCalls
 {
     public class ChecklistItem
     {

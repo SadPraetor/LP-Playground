@@ -1,38 +1,34 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Keycloak.Migration;
+using Microsoft.Data.SqlClient;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 Console.WriteLine("Hello, World!");
 
-List<string> prodList = new();
-List<string> testList = new();
 
-using (FileStream fileStream = File.OpenRead("accounts-prod-v2-created-password_set.json"))
-{
-    using StreamReader reader = new StreamReader(fileStream);
 
-    while (!reader.EndOfStream)
-    {
-        var line = reader.ReadLine();
 
-		try
-		{
-			if (string.IsNullOrEmpty(line))
-			{
-                var userDto = JsonSerializer.Deserialize<UserDto>(line);
+var command = new SqlCommand(@"INSERT INTO dbo.Checklist
+                    (Checked, VehicleId, DefinitionId, Active, Activated, IsDeleted)
+                    SELECT
+                        0 AS Checked,
+                        v.Id AS VehicleId,
+                        80 AS DefinitionId,
+                        1 AS Active,
+                        @timestamp AS Activated,
+                        0 AS IsDeleted
+                    FROM dbo.Vehicle v
+                    WHERE
+                      v.Channel = 3"
+                );
 
-                if (userDto is null)
-                {
-                    //fs_logger.LogWarning("Failed to deserialize line {line} into UserDto", line);
-                    continue;
-                }
-                prodList.Add(userDto.PortalUserName);
-            }
-		}
-		catch (Exception)
-		{
+var para = new SqlParameter("@timestamp", DateTime.UtcNow);
+command.Parameters.Add(para);
 
-			throw;
-		}
-    }
-}
+
+var test = command.CommandText;
+
+
+Console.WriteLine();
+Console.WriteLine("brakpoint");

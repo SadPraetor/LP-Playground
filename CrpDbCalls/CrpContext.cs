@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace FirstCallsDb
+namespace CrpDbCalls
 {
     class CrpContext : DbContext
     {
@@ -10,7 +10,7 @@ namespace FirstCallsDb
         {            
             _cnnString = cnnString;
         }
-
+        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(_cnnString);
@@ -19,5 +19,7 @@ namespace FirstCallsDb
 
 
         public virtual DbSet<ChecklistItem> Checklist { get; set; }
+
+        public virtual DbSet<Template> Templates { get; set; }
     }
 }
