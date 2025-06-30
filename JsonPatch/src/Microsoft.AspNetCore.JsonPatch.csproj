@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>ASP.NET Core support for JSON PATCH.</Description>
+    <TargetFrameworks>net9.0</TargetFrameworks>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <DefineConstants>$(DefineConstants);INTERNAL_NULLABLE_ATTRIBUTES</DefineConstants>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageTags>aspnetcore;json;jsonpatch</PackageTags>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\..\aspnetcore\src\Shared\ClosedGenericMatcher\ClosedGenericMatcher.cs" Link="ClosedGenericMatcher.cs" />
+    <Compile Include="..\..\..\aspnetcore\src\Shared\ThrowHelpers\ArgumentNullThrowHelper.cs" Link="ArgumentNullThrowHelper.cs" />
+    <Compile Include="..\..\..\aspnetcore\src\Shared\ThrowHelpers\ArgumentOutOfRangeThrowHelper.cs" Link="ArgumentOutOfRangeThrowHelper.cs" />
+    <Compile Include="..\..\..\aspnetcore\src\Shared\ThrowHelpers\ArgumentThrowHelper.cs" Link="ArgumentThrowHelper.cs" />
+    <Compile Include="..\..\..\aspnetcore\src\Shared\ThrowHelpers\ObjectDisposedThrowHelper.cs" Link="ObjectDisposedThrowHelper.cs" />
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    <Compile Include="$(SharedSourceRoot)ClosedGenericMatcher\*.cs" />
+    <Compile Include="$(SharedSourceRoot)ThrowHelpers\ArgumentNullThrowHelper.cs" LinkBase="Shared" />
+    <Compile Include="$(SharedSourceRoot)CallerArgument\CallerArgumentExpressionAttribute.cs" LinkBase="Shared" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != '$(DefaultNetCoreTargetFramework)'">
+    <Compile Include="$(SharedSourceRoot)Nullable\NullableAttributes.cs" LinkBase="Shared" />
+    <Compile Include="$(SharedSourceRoot)TrimmingAttributes.cs" LinkBase="Shared" />
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Microsoft.AspNetCore.JsonPatch.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+</Project>
